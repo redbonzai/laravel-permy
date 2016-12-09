@@ -1,0 +1,25 @@
+{
+    "name": "michaeltintiuc/laravel-permy",
+    "description": "User permissions (roles or groups) based on Laravel routes.",
+    "license": "MIT",
+    "keywords": ["laravel", "permission", "role", "user", "route", "access", "control", "acl", "group"],
+    "authors": [
+        {
+            "name": "Michael Tintiuc",
+            "email": "overcrookd@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "4.2.*"
+    },
+    "autoload": {
+        "classmap": [
+            "src/migrations"
+        ],
+        "psr-4": {
+            "MichaelT\\Permy\\": "src"
+        }
+    },
+    "minimum-stability": "stable"
+}
