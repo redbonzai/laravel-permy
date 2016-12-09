@@ -1,6 +1,6 @@
 {
     "name": "michaeltintiuc/laravel-permy",
-    "description": "User permissions (roles or groups) based on Laravel routes.",
+    "description": "Laravel user permissions (roles or groups) based on defined routes.",
     "license": "MIT",
     "keywords": ["laravel", "permission", "role", "user", "route", "access", "control", "acl", "group"],
     "authors": [
