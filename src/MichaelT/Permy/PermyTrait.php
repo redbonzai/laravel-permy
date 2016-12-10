@@ -31,6 +31,10 @@ trait PermyTrait
      **/
     final private function getRoute($route)
     {
+        // If $route is a Route instance - return it right away
+        if ($route instanceof \Illuminate\Routing\Route)
+            return $route;
+
         // Cache the routes collection
         if ( ! isset(static::$routes))
             static::$routes = \Route::getRoutes();
@@ -46,27 +50,31 @@ trait PermyTrait
      * Check if the user doesn't have permissions for route
      *
      * @param  mixed (string|Illuminate\Routing\Route) $route
+     * @param  string $operator
+     * @param  boolean $extra_check
      * @return boolean
     **/
-    final public function cant($route)
+    final public function cant($route, $operator='and', $extra_check=false)
     {
-        return !$this->can($route);
+        $operator = $this->getOperator();
+        $permission = !$this->can($route);
+
+        return $operator == 'and'
+            ? $permission && $extra_check
+            : $permission || $extra_check;
     }
 
     /**
      * Check if the user has permissions for route
      *
      * @param  mixed (string|Illuminate\Routing\Route) $route
+     * @param  string $operator
+     * @param  boolean $extra_check
      * @return boolean
     **/
-    final public function can($route)
+    final public function can($route, $operator='and', $extra_check=true)
     {
-        // If $route is not a Route instance, let's try look it up
-        $route_obj = $route instanceof \Illuminate\Routing\Route
-            ? $route
-            : $this->getRoute($route);
-
-        if ( ! $route_obj)
+        if ( ! $route_obj = $this->getRoute($route))
             return false;
 
         $route_action = $route_obj->getAction();
@@ -81,9 +89,9 @@ trait PermyTrait
         // Get route's controller and method names
         list($controller, $method) = $this->getRouteControllerAndMethod($route_action);
 
-        // Fetch the appropriate user's permission
         try
         {
+            // Fetch the appropriate user's permission
             $permissions = $this->permy()->lists($controller);
         }
         catch (\Exception $e)
@@ -92,7 +100,13 @@ trait PermyTrait
             return false;
         }
 
-        return $this->parsePermissions($permissions, $controller, $method);
+        // Parse the permission to route and handle additional checks
+        $operator = $this->getOperator($operator);
+        $permission = $this->parsePermissions($permissions, $controller, $method);
+
+        return $operator == 'and'
+            ? $permission && $extra_check
+            : $permission || $extra_check;
     }
 
     /**
@@ -144,10 +158,10 @@ trait PermyTrait
      *
      * @return string
     **/
-    final private function getOperator()
+    final private function getOperator($operator=null)
     {
         $available_operators = ['and', 'or'];
-        $user_operator = \Config::get('laravel-permy::logic_operator');
+        $user_operator = $operator ? $operator : \Config::get('laravel-permy::logic_operator');
 
         return in_array($user_operator, $available_operators)
             ? $user_operator
