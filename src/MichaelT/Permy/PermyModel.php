@@ -34,16 +34,11 @@ class PermyModel extends \Eloquent
      **/
     public function getPermission($controller, $method)
     {
-        $controller = snake_case(str_replace('Controller', '', $controller));
+        $controller = \Permy::formatControllerName($controller);
+        $permission_obj = json_decode($this->{$controller});
 
-        try
-        {
-            // Assume permission is set
-            return (int) json_decode($this->$controller)->$method;
-        }
-        catch (Exception $e)
-        {
-            return 0;
-        }
+        return isset($permission_obj->{$method})
+            ? $permission_obj->{$method}
+            : 0;
     }
 }

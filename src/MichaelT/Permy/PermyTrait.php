@@ -20,7 +20,7 @@ trait PermyTrait
      **/
     public function permy()
     {
-        return $this->belongsToMany('MichaelT\Permy\PermyModel', 'permy_user', 'user_id', 'permy_id');
+        return $this->belongsToMany('MichaelT\Permy\Permy', 'permy_user', 'user_id', 'permy_id');
     }
 
     /**
