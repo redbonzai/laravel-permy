@@ -22,13 +22,13 @@ class CreatePermyTable extends Migration
             $table->string('desc');
 
             // Example (NON-NAMESPACED controller UsersController):
-            // syntax: {class_name_wihout_controller}
+            // syntax: {controller}
             // $table->text('users')->nullable();
 
             // Example (NAMESPACED controller Acme\Admin\UsersController):
-            // syntax: {full_class_name_wihout_controller}
-            $table->text('acme_admin_users')->nullable();
-            $table->text('acme_site_users')->nullable();
+            // syntax: {acme::namespace::controller}
+            $table->text('acme::admin::users')->nullable();
+            $table->text('acme::site::users')->nullable();
         });
     }
 

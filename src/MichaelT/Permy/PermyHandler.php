@@ -30,15 +30,53 @@ class PermyHandler
      * @param Illuminate\Routing\Route $route
      * @return boolean
      **/
-    final private function skip($route)
+    final private function skip(\Illuminate\Routing\Route $route)
     {
-        // Skip routes that don't use the filter
-        if ( ! isset($route->beforeFilters()['permy']))
-            return true;
-
         // Skip routes that don't use controllers
         if ( ! isset($route->getAction()['controller']))
             return true;
+
+        // Skip routes that don't use supplied filters
+        return !$this->parseFilters($route);
+    }
+
+    /**
+     * Parse route and/or controller routes
+     *
+     * @param Illuminate\Routing\Route $route
+     * @return boolean
+     **/
+    final private function parseFilters(\Illuminate\Routing\Route $route)
+    {
+        // Get available and route filters
+        $available_filters = array_fill_keys((array) \Config::get('laravel-permy::filter_names'), null);
+
+        // We've got route filters
+        if (array_intersect_key($available_filters, $route->beforeFilters()))
+            return true;
+
+        // Get controller name
+        $controller = explode('@', $route->getActionName())[0];
+
+        try
+        {
+            // Try to instantiate the controller
+            // Throws an exception for controllers whose dependencies are not registered
+            $controller_filters = \App::make($controller)->getBeforeFilters();
+        }
+        catch (\Exception $e)
+        {
+            return false;
+        }
+
+        $max = count($controller_filters);
+
+        for ($i=0; $i < $max; $i++)
+        {
+            // Check if provided methods are set on the controller
+            if (array_key_exists($controller_filters[$i]['original'], $available_filters))
+                return true;
+        }
 
         return false;
     }
@@ -57,11 +95,8 @@ class PermyHandler
             if ($this->skip($route))
                 continue;
 
-            // Get route's action
-            $action = $route->getAction();
-
             // Get route's controller and method
-            list($controller, $method) = explode('@', $action['controller']);
+            list($controller, $method) = explode('@', $route->getActionName());
 
             // format controller class name
             $controller = $this->formatControllerName($controller);
@@ -84,7 +119,7 @@ class PermyHandler
      **/
     final public function formatControllerName($controller)
     {
-        return strtolower(str_replace(['\\', 'Controller'], ['_', ''], $controller));
+        return strtolower(str_replace(['\\', 'Controller'], ['::', ''], $controller));
     }
 
     /**
@@ -118,8 +153,8 @@ class PermyHandler
 
         $this->permissions[$controller] =
         [
-            'name' => Lang::get('permy::defaults.controller.name', $lang_data),
-            'desc' => Lang::get('permy::defaults.controller.desc', $lang_data),
+            'name' => Lang::get('laravel-permy::defaults.controller.name', $lang_data),
+            'desc' => Lang::get('laravel-permy::defaults.controller.desc', $lang_data),
         ];
 
         // Permy language file updated with '$controller' controller. Please set data for it.
@@ -140,8 +175,8 @@ class PermyHandler
 
         $this->permissions[$controller]['methods'][$method] =
         [
-            'name' => Lang::get('permy::defaults.method.name', $lang_data),
-            'desc' => Lang::get('permy::defaults.method.desc', $lang_data),
+            'name' => Lang::get('laravel-permy::defaults.method.name', $lang_data),
+            'desc' => Lang::get('laravel-permy::defaults.method.desc', $lang_data),
         ];
 
         // Permy file does not contain method '$method' for '$controller' controller
