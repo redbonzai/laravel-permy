@@ -20,7 +20,7 @@ trait PermyTrait
      **/
     public function permy()
     {
-        return $this->belongsToMany('MichaelT\Permy\Permy', 'permy_user', 'user_id', 'permy_id');
+        return $this->belongsToMany('MichaelT\Permy\PermyModel', 'permy_user', 'user_id', 'permy_id');
     }
 
     /**
@@ -56,12 +56,7 @@ trait PermyTrait
     **/
     final public function cant($route, $operator='and', $extra_check=false)
     {
-        $operator = $this->getOperator();
-        $permission = !$this->can($route);
-
-        return $operator == 'and'
-            ? $permission && $extra_check
-            : $permission || $extra_check;
+        return $this->permissionLogicalUnion(!$this->can($route), $extra_check, $operator);
     }
 
     /**
@@ -101,12 +96,9 @@ trait PermyTrait
         }
 
         // Parse the permission to route and handle additional checks
-        $operator = $this->getOperator($operator);
         $permission = $this->parsePermissions($permissions, $controller, $method);
 
-        return $operator == 'and'
-            ? $permission && $extra_check
-            : $permission || $extra_check;
+        return $this->permissionLogicalUnion($permission, $extra_check, $operator);
     }
 
     /**
@@ -119,37 +111,46 @@ trait PermyTrait
     **/
     final private function parsePermissions(array $permissions, $controller, $method)
     {
+        $final_permission = false;
         $max = count($permissions);
-        $operator = $this->getOperator();
-        $bool_result = 0;
 
         for ($i=0; $i < $max; $i++)
         {
             $permission_obj = json_decode($permissions[$i]);
 
-            if (isset($permission_obj->{$method}))
-            {
-                // Permissions were set - perform addition and move on
-                $bool_result += (int) $permission_obj->{$method};
-                continue;
-            }
-
             // Permissions were not set
-            // If user has only 1 permission set against him - notify and exit immediately
-            // otherwise carry on and see if other permissions allow access
-            if ($max == 1)
+            if ( ! isset($permission_obj->{$method}))
             {
-                $this->permyNotifyMethodPermissionNotSet($controller, $method);
+                // If user has only 1 permission set against him - notify and exit immediately
+                if ($max == 1)
+                    $this->permyNotifyMethodPermissionNotSet($controller, $method);
+
                 break;
             }
+
+            // Permissions were set - carry on with the logic
+            $current_permission = (int) $permission_obj->{$method};
+
+            $final_permission = $i == 0
+                ? $current_permission
+                : $this->permissionLogicalUnion($final_permission, $current_permission);
         }
 
-        // Calculate the final permission
-        // For an AND operator the total boolean value should be equal to permissions length
-        // For an OR operator it should be greater than 0
-        return $operator == 'and'
-            ? $bool_result == $max
-            : $bool_result > 0;
+        return $final_permission;
+    }
+
+    final private function permissionLogicalUnion($final_permission, $current_permission, $operator=null)
+    {
+        $operator = $this->getOperator($operator);
+
+        if ($operator == 'and')
+            return $final_permission && $current_permission;
+
+        if ($operator == 'or')
+            return $final_permission || $current_permission;
+
+        if ($operator == 'xor')
+            return $final_permission xor $current_permission;
     }
 
     /**
@@ -160,7 +161,7 @@ trait PermyTrait
     **/
     final private function getOperator($operator=null)
     {
-        $available_operators = ['and', 'or'];
+        $available_operators = ['and', 'or', 'xor'];
         $user_operator = $operator ? $operator : \Config::get('laravel-permy::logic_operator');
 
         return in_array($user_operator, $available_operators)
