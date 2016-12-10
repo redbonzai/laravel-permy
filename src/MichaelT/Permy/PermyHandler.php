@@ -30,7 +30,7 @@ class PermyHandler
      * @param Illuminate\Routing\Route $route
      * @return boolean
      **/
-    private function skip($route)
+    final private function skip($route)
     {
         // Skip routes that don't use the filter
         if ( ! isset($route->beforeFilters()['permy']))
@@ -49,7 +49,7 @@ class PermyHandler
      *
      * @return array
      **/
-    public function getList()
+    final public function getList()
     {
         foreach (\Route::getRoutes() as $route)
         {
@@ -94,7 +94,7 @@ class PermyHandler
      * @param string $method
      * @return void
      **/
-    private function update($controller, $method)
+    final private function update($controller, $method)
     {
         if ( ! isset($this->permissions[$controller]))
             $this->appendController($controller);
@@ -111,7 +111,7 @@ class PermyHandler
      * @param string $controller
      * @return void
      **/
-    private function appendController($controller)
+    final private function appendController($controller)
     {
         $this->needsUpdate = true;
         $lang_data = ['controller' => $controller];
@@ -133,7 +133,7 @@ class PermyHandler
      * @param string $method
      * @return void
      **/
-    private function appendMethod($controller, $method)
+    final private function appendMethod($controller, $method)
     {
         $this->needsUpdate = true;
         $lang_data = ['controller' => $controller, 'method' => $method];
@@ -153,7 +153,7 @@ class PermyHandler
      *
      * @return void
      **/
-    private function updateFile()
+    final private function updateFile()
     {
         // return if nothing needs to be updated
         if ( ! $this->needsUpdate)

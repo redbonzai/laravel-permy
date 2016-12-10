@@ -13,7 +13,6 @@ trait PermyTrait
 {
     private static $routes;
 
-
     /**
      * Define the relationship between the user and permission
      *
@@ -30,7 +29,7 @@ trait PermyTrait
      * @param  mixed (string|Illuminate\Routing\Route) $route
      * @return mixed (null|Illuminate\Routing\Route)
      **/
-    private function getRouteByName($route)
+    final private function getRouteByName($route)
     {
         // Cache the routes collection
         if ( ! isset(static::$routes))
@@ -46,7 +45,7 @@ trait PermyTrait
      * @param  mixed (string|Route) $route
      * @return boolean
     **/
-    public function can($route)
+    final public function can($route)
     {
         // If $route is not a Route instance, let's try look it up
         $route_obj = $route instanceof \Illuminate\Routing\Route
@@ -57,6 +56,7 @@ trait PermyTrait
             return false;
 
         $route_action = $route_obj->getAction();
+
         // Check if route has a controller
         if ( ! isset($route_action['controller']))
         {
@@ -70,40 +70,83 @@ trait PermyTrait
         // Fetch the appropriate user's permission
         try
         {
-            $permissions = $this->permy()->select($controller)->first();
+            $permissions = $this->permy()->lists($controller);
         }
         catch (\Exception $e)
         {
             $this->permyNotifyPermissionsNotFound();
             return false;
         }
-        // See if permissions were set (controller column exists in DB)
-        if ($permissions->{$controller} === null)
+
+        return $this->parsePermissions($permissions, $controller, $method);
+    }
+
+    /**
+     * Parse the permissions retrieved from database
+     *
+     * @param  array  $permissions
+     * @param  string $controller
+     * @param  string $method
+     * @return boolean
+    **/
+    final private function parsePermissions(array $permissions, $controller, $method)
+    {
+        $max = count($permissions);
+        $operator = $this->getOperator();
+        $bool_result = 0;
+
+        for ($i=0; $i < $max; $i++)
         {
-            // Restrict access by default
-            $this->permyNotifyControllerPermissionNotSet($controller);
-            return false;
+            $permission_obj = json_decode($permissions[$i]);
+
+            if (isset($permission_obj->{$method}))
+            {
+                // Permissions were set - perform addition and move on
+                $bool_result += (int) $permission_obj->{$method};
+                continue;
+            }
+
+            // Permissions were not set
+            // If user has only 1 permission set against him - notify and exit immediately
+            // otherwise carry on and see if other permissions allow access
+            if ($max == 1)
+            {
+                $this->permyNotifyMethodPermissionNotSet($controller, $method);
+                break;
+            }
         }
 
-        try
-        {
-            // Assume the method permissions were set
-            return (bool) json_decode($permissions->{$controller})->{$method};
-        }
-        catch (\Exception $e)
-        {
-            $this->permyNotifyMethodPermissionNotSet($controller, $method);
-            return false;
-        }
+        // Calculate the final permission
+        // For an AND operator the total boolean value should be equal to permissions length
+        // For an OR operator it should be greater than 0
+        return $operator == 'and'
+            ? $bool_result == $max
+            : $bool_result > 0;
+    }
+
+    /**
+     * Grab the logical operator
+     * return the default one in case if an unsupported operator is provided
+     *
+     * @return string
+    **/
+    final private function getOperator()
+    {
+        $available_operators = ['and', 'or'];
+        $user_operator = \Config::get('laravel-permy::logic_operator');
+
+        return in_array($user_operator, $available_operators)
+            ? $user_operator
+            : 'and';
     }
 
     /**
      * Grab the controller and method name from route action
      *
-     * @param  array $route_action
+     * @param  array  $route_action
      * @return array
     **/
-    protected function getRouteControllerAndMethod($route_action)
+    final private function getRouteControllerAndMethod($route_action)
     {
         $controller_method_arr = explode('@', $route_action['controller']);
 
@@ -116,7 +159,7 @@ trait PermyTrait
     /**
      * Controller is not set for route
      *
-     * @param  string $uri
+     * @param  string  $uri
      * @return void
     **/
     public function permyNotifyControllerNotSet($uri)
@@ -135,21 +178,10 @@ trait PermyTrait
     }
 
     /**
-     * No permissions were set for $controller in the database. Column does not exist
-     *
-     * @param  string $controller
-     * @return void
-    **/
-    public function permyNotifyControllerPermissionNotSet($controller)
-    {
-        //
-    }
-
-    /**
      * Update user permissions for $controller@$method. Default to Restricted.
      *
-     * @param  string $controller
-     * @param  string $method
+     * @param  string  $controller
+     * @param  string  $method
      * @return void
     **/
     public function permyNotifyMethodPermissionNotSet($controller, $method)

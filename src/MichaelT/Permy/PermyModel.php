@@ -16,7 +16,7 @@ class PermyModel extends \Eloquent
 
     public function users()
     {
-        return $this->belongsToMany(\Config::get('laravel-permy::users_model'), 'permy_user', 'permy_id', 'user_id');
+        return $this->belongsToMany(\Config::get('auth.model'), 'permy_user', 'permy_id', 'user_id');
     }
 
     public function scopeGetList($query, $merge=['' => 'NOT SET'])

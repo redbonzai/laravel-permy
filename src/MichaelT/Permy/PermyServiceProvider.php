@@ -38,7 +38,7 @@ class PermyServiceProvider extends ServiceProvider
     {
         $this->app->bindShared('permy', function()
         {
-            return new PermyHandler;
+            return new PermyHandlerTest;
         });
     }
 
