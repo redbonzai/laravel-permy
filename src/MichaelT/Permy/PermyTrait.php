@@ -29,6 +29,25 @@ trait PermyTrait
      * @param  mixed (string|Illuminate\Routing\Route) $route
      * @return mixed (null|Illuminate\Routing\Route)
      **/
+    final private function getRoute($route)
+    {
+        // Cache the routes collection
+        if ( ! isset(static::$routes))
+            static::$routes = \Route::getRoutes();
+
+        // Check if route exists
+        // Check if provided string is action (Controller@method) or a route name
+        return (strpos($route, '@') !== false)
+            ? static::$routes->getByAction($route)
+            : static::$routes->getByName($route);
+    }
+
+    /**
+     * Initiate the routes collection, cache them and find/return the route
+     *
+     * @param  mixed (string|Illuminate\Routing\Route) $route
+     * @return mixed (null|Illuminate\Routing\Route)
+     **/
     final private function getRouteByName($route)
     {
         // Cache the routes collection
@@ -61,7 +80,7 @@ trait PermyTrait
         // If $route is not a Route instance, let's try look it up
         $route_obj = $route instanceof \Illuminate\Routing\Route
             ? $route
-            : $this->getRouteByName($route);
+            : $this->getRoute($route);
 
         if ( ! $route_obj)
             return false;
