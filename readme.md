@@ -1,5 +1,7 @@
-### Permy
-Short for "permanent friend". Updates are on the way
+## Permy
+> Short for "permanent friend".
+- [ ] Write the Docs for usage and installation
+- [ ] Update code to latest Laravel versions
 
-### License
+## License
 This is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
