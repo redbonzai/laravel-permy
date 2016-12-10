@@ -40,6 +40,17 @@ trait PermyTrait
     }
 
     /**
+     * Check if the user doesn't have permissions for route
+     *
+     * @param  mixed (string|Route) $route
+     * @return boolean
+    **/
+    final public function cant($route)
+    {
+        return !$this->can($route);
+    }
+
+    /**
      * Check if the user has permissions for route
      *
      * @param  mixed (string|Route) $route
