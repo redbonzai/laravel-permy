@@ -45,7 +45,7 @@ trait PermyTrait
     /**
      * Check if the user doesn't have permissions for route
      *
-     * @param  mixed (string|Route) $route
+     * @param  mixed (string|Illuminate\Routing\Route) $route
      * @return boolean
     **/
     final public function cant($route)
@@ -56,7 +56,7 @@ trait PermyTrait
     /**
      * Check if the user has permissions for route
      *
-     * @param  mixed (string|Route) $route
+     * @param  mixed (string|Illuminate\Routing\Route) $route
      * @return boolean
     **/
     final public function can($route)
