@@ -43,22 +43,6 @@ trait PermyTrait
     }
 
     /**
-     * Initiate the routes collection, cache them and find/return the route
-     *
-     * @param  mixed (string|Illuminate\Routing\Route) $route
-     * @return mixed (null|Illuminate\Routing\Route)
-     **/
-    final private function getRouteByName($route)
-    {
-        // Cache the routes collection
-        if ( ! isset(static::$routes))
-            static::$routes = \Route::getRoutes();
-
-        // Check if route exists
-        return static::$routes->getByName($route);
-    }
-
-    /**
      * Check if the user doesn't have permissions for route
      *
      * @param  mixed (string|Route) $route
