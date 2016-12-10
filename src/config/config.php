@@ -12,5 +12,5 @@ return
     // and: all permissions must be set to true
     // or: at least one of the permissions must be set to true
     // xor: only one of the permissions must be set to true
-    'logic_operator' => 'xor'
+    'logic_operator' => 'and'
 ];
