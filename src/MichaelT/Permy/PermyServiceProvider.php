@@ -27,6 +27,7 @@ class PermyServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->package('michaeltintiuc/laravel-permy');
+        $this->commands(['MichaelT\Permy\Commands\Can']);
     }
 
     /**

@@ -17,6 +17,9 @@ class PermyHandler
 
     public function __construct()
     {
+        // Disable fallback for easier localization
+        Lang::setFallback('');
+
         // Get the initial state of the permissions
         $this->permissions = Lang::get('laravel-permy::permy');
 
