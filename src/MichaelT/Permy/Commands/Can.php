@@ -23,6 +23,7 @@ class Can extends Command
         catch (\Exception $e)
         {
             $this->error("User with ID of $user_id not found");
+            return;
         }
 
         if ($user->can($route))
