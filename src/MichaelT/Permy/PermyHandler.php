@@ -55,12 +55,12 @@ class PermyHandler
         if (array_intersect_key($available_filters, $route->beforeFilters()))
             return true;
 
+        // Search for controllers with before filters set
         // Get controller name and method
         list($controller, $method) = explode('@', $route->getActionName());
 
         try
         {
-            // Try to instantiate the controller
             // Throws an exception for controllers whose dependencies are not registered
             $controller_filters = \App::make($controller)->getBeforeFilters();
         }
@@ -77,13 +77,17 @@ class PermyHandler
             $key_exists = array_key_exists($controller_filters[$i]['original'], $available_filters);
             $applied_to_method = true;
 
+            // No point in further logic if it's not our filter
+            if ( ! $key_exists)
+                return false;
+
+            // is our method whitelisted or blacklisted?
             if (isset($controller_filters[$i]['options']['only']))
                 $applied_to_method = in_array($method, (array) $controller_filters[$i]['options']['only']);
-
-            if (isset($controller_filters[$i]['options']['except']))
+            elseif (isset($controller_filters[$i]['options']['except']))
                 $applied_to_method = !in_array($method, (array) $controller_filters[$i]['options']['except']);
 
-            if ($key_exists && $applied_to_method)
+            if ($applied_to_method)
                 return true;
         }
 
