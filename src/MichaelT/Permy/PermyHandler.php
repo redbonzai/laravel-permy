@@ -55,8 +55,8 @@ class PermyHandler
         if (array_intersect_key($available_filters, $route->beforeFilters()))
             return true;
 
-        // Get controller name
-        $controller = explode('@', $route->getActionName())[0];
+        // Get controller name and method
+        list($controller, $method) = explode('@', $route->getActionName());
 
         try
         {
@@ -74,7 +74,16 @@ class PermyHandler
         for ($i=0; $i < $max; $i++)
         {
             // Check if provided methods are set on the controller
-            if (array_key_exists($controller_filters[$i]['original'], $available_filters))
+            $key_exists = array_key_exists($controller_filters[$i]['original'], $available_filters);
+            $applied_to_method = true;
+
+            if (isset($controller_filters[$i]['options']['only']))
+                $applied_to_method = in_array($method, (array) $controller_filters[$i]['options']['only']);
+
+            if (isset($controller_filters[$i]['options']['except']))
+                $applied_to_method = !in_array($method, (array) $controller_filters[$i]['options']['except']);
+
+            if ($key_exists && $applied_to_method)
                 return true;
         }
 
