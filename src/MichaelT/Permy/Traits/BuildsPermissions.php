@@ -87,7 +87,7 @@ trait BuildsPermissions
     private function parseFilters(Route $route)
     {
         // Get available and route filters
-        $available_filters = array_fill_keys((array) \Config::get('laravel-permy::filter_names'), null);
+        $available_filters = array_fill_keys((array) \Config::get('laravel-permy::filters.fillable'), null);
 
         // We've got route filters
         if (array_intersect_key($available_filters, $route->beforeFilters()))

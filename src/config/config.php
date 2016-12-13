@@ -16,8 +16,15 @@ return
 
     // Available filters
     //
-    // An array of filters based on which Permy builds a list
-    // of permissions to manage
-    // Default: ['permy']
-    'filter_names' => ['permy'],
+    // An array of filters based on which Permy builds a list of permissions to manage
+    // The fillable array represents the the filters that are manageable through the UI
+    // The guarded array represents the filters that are not seen in the UI and are managed manually
+    //
+    // Default filters array:
+    // 'fillable' => ['permy'],
+    // 'guarded' => [],
+    'filters' => [
+        'fillable' => ['permy'],
+        'guarded' => [],
+    ],
 ];

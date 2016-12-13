@@ -3,6 +3,7 @@
 namespace MichaelT\Permy\Traits;
 
 use MichaelT\Permy\Exceptions\PermyUserNotSetException;
+use MichaelT\Permy\Exceptions\PermyUserNotModelException;
 
 trait ChecksAccess
 {
@@ -172,7 +173,9 @@ trait ChecksAccess
         if (\Auth::guest() && !$this->user)
             throw new PermyUserNotSetException('User is not set');
 
-        $this->user = \Auth::user();
+        if ( ! $this->user)
+            $this->user = \Auth::user();
+
         $model = \Config::get('auth.model');
 
         if ( ! $this->user instanceof $model)
@@ -182,12 +185,14 @@ trait ChecksAccess
     /**
      * Set the user
      *
-     * @return void
+     * @return User instance
     **/
     public function setUser($user)
     {
         $this->user = $user;
         $this->checkUser();
+
+        return $this;
     }
 
     /**
