@@ -35,13 +35,13 @@ trait ChecksAccess
     {
         $this->checkUser();
 
-        if ( ! $route_obj = $this->getRoute($route))
+        if (!$route_obj = $this->getRoute($route))
             return false;
 
         $route_action = $route_obj->getAction();
 
         // Check if route has a controller
-        if ( ! isset($route_action['controller'])) {
+        if (!isset($route_action['controller'])) {
             $this->permyNotifyControllerNotSet($route_obj->getUri());
             return false;
         }
@@ -76,7 +76,7 @@ trait ChecksAccess
             return $route;
 
         // Cache the routes collection
-        if ( ! isset(static::$routes))
+        if (!isset(static::$routes))
             static::$routes = \Route::getRoutes();
 
         // Check if route exists
@@ -112,14 +112,14 @@ trait ChecksAccess
     **/
     private function parsePermissions(array $permissions, $controller, $method)
     {
-        $final_permission = false;
+        $route_permission = false;
         $max = count($permissions);
 
         for ($i=0; $i < $max; $i++) {
             $permission_obj = json_decode($permissions[$i]);
 
             // Permissions were not set
-            if ( ! isset($permission_obj->{$method})) {
+            if (!isset($permission_obj->{$method})) {
                 // If user has only 1 permission set against him - notify and exit immediately
                 if ($max == 1)
                     $this->permyNotifyMethodPermissionNotSet($controller, $method);
@@ -130,26 +130,34 @@ trait ChecksAccess
             // Permissions were set - carry on with the logic
             $current_permission = (int) $permission_obj->{$method};
 
-            $final_permission = $i == 0
+            $route_permission = ($i == 0)
                 ? $current_permission
-                : $this->permissionLogicalUnion($final_permission, $current_permission);
+                : $this->permissionLogicalUnion($route_permission, $current_permission);
         }
 
-        return $final_permission;
+        return $route_permission;
     }
 
-    private function permissionLogicalUnion($final_permission, $current_permission, $operator=null)
+    /**
+     * Perform logical operations on set of permissions
+     *
+     * @param  boolean $route_permission
+     * @param  boolean $current_permission
+     * @param  string  $operator
+     * @return string
+    **/
+    private function permissionLogicalUnion($route_permission, $current_permission, $operator = '')
     {
         $operator = $this->getOperator($operator);
 
         if ($operator == 'and')
-            return $final_permission && $current_permission;
+            return $route_permission && $current_permission;
 
         if ($operator == 'or')
-            return $final_permission || $current_permission;
+            return $route_permission || $current_permission;
 
         if ($operator == 'xor')
-            return $final_permission xor $current_permission;
+            return $route_permission xor $current_permission;
     }
 
     /**
@@ -158,7 +166,7 @@ trait ChecksAccess
      *
      * @return string
     **/
-    private function getOperator($operator=null)
+    private function getOperator($operator = '')
     {
         $available_operators = ['and', 'or', 'xor'];
         $user_operator = $operator ? $operator : \Config::get('laravel-permy::logic_operator');
@@ -168,17 +176,26 @@ trait ChecksAccess
             : 'and';
     }
 
+    /**
+     * Check that the provided user is valid and try setting a default one
+     *
+     * @return void
+    **/
     private function checkUser()
     {
+        // bail if not authenticated user or custom user provided
         if (\Auth::guest() && !$this->user)
             throw new PermyUserNotSetException('User is not set');
 
-        if ( ! $this->user)
+        // try setting the default user as the authenticated user
+        if (!$this->user)
             $this->user = \Auth::user();
 
+        // Get the class to check against
         $model = \Config::get('auth.model');
 
-        if ( ! $this->user instanceof $model)
+        // Make sure we're working with a valid object
+        if (!$this->user instanceof $model)
             throw new PermyUserNotModelException("User is not an instance of $model");
     }
 
@@ -200,7 +217,7 @@ trait ChecksAccess
      *
      * @return User
     **/
-    private function getUser()
+    public function getUser()
     {
         return $this->user;
     }

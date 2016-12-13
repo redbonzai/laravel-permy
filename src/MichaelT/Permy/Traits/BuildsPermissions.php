@@ -55,7 +55,7 @@ trait BuildsPermissions
         // Get the initial state of the permissions
         $this->permissions = Lang::get('laravel-permy::permy');
 
-        if( ! is_array($this->permissions))
+        if(!is_array($this->permissions))
             $this->permissions = [];
 
         // Re-enable the fallback locale
@@ -71,7 +71,7 @@ trait BuildsPermissions
     private function skip(Route $route)
     {
         // Skip routes that don't use controllers
-        if ( ! isset($route->getAction()['controller']))
+        if (!isset($route->getAction()['controller']))
             return true;
 
         // Skip routes that don't use supplied filters
@@ -112,7 +112,7 @@ trait BuildsPermissions
             $applied_to_method = true;
 
             // No point in further logic if it's not our filter
-            if ( ! $key_exists)
+            if (!$key_exists)
                 return false;
 
             // is our method whitelisted or blacklisted?
@@ -137,10 +137,10 @@ trait BuildsPermissions
      **/
     private function update($controller, $method)
     {
-        if ( ! isset($this->permissions[$controller]))
+        if (!isset($this->permissions[$controller]))
             $this->appendController($controller);
 
-        if ( ! isset($this->permissions[$controller]['methods'][$method]))
+        if (!isset($this->permissions[$controller]['methods'][$method]))
             $this->appendMethod($controller, $method);
 
         $this->updateFile();
@@ -195,19 +195,19 @@ trait BuildsPermissions
     private function updateFile()
     {
         // return if nothing needs to be updated
-        if ( ! $this->needsUpdate)
+        if (!$this->needsUpdate)
             return;
 
         $locale = \App::getLocale();
         $path = app_path()."/lang/packages/$locale/laravel-permy/";
         $file = "permy.php";
 
-        if ( ! \File::exists($path.$file))
+        if (!\File::exists($path.$file))
             \File::makeDirectory($path, $recursive=true);
 
         try {
             // Update permissions language file with new items
-            if ( ! \File::put($path.$file, '<?php return '.var_export($this->permissions, true).';'))
+            if (!\File::put($path.$file, '<?php return '.var_export($this->permissions, true).';'))
                 throw new \Exception('Failed to update language file!');
         } catch (\Exception $e) {
             // Failed to update language file
