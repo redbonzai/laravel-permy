@@ -16,20 +16,19 @@ class Can extends Command
         $user_id = $this->argument('user_id');
         $route = $this->argument('route');
 
-        try
-        {
+        try {
             $user = $model::findOrFail($user_id);
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $this->error("User with ID of $user_id not found");
             return;
         }
 
-        if ($user->can($route))
+        if (\Permy::setUser($user)->can($route)) {
             $this->info('Access is allowed');
-        else
-            $this->error('Access is restricted');
+            return;
+        }
+
+        $this->error('Access is restricted');
     }
 
     /**
@@ -39,15 +38,13 @@ class Can extends Command
      */
     protected function getArguments()
     {
-        return
-        [
+        return [
             [
                 'user_id',
                 InputArgument::REQUIRED,
                 'ID of the user to check',
                 null
-            ],
-            [
+            ], [
                 'route',
                 InputArgument::REQUIRED,
                 'Route name or action to check (eg. users.index or Acme\Users\UsersController@index)',

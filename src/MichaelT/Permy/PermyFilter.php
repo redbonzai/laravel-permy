@@ -23,8 +23,7 @@ class PermyFilter
     {
         // Check if user is logged-in first
         // Check if user is authorized to access this route
-        if (\Auth::check() && !\Auth::user()->can($route))
-        {
+        if (\Auth::check() && !\Auth::user()->can($route)) {
             return \Request::ajax() || \Request::wantsJson()
                 ? \Response::json(['status' => 401, 'errors' => ['Unauthorized']], 401)
                 : '401 - Forbidden';
