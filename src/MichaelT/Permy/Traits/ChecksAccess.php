@@ -172,6 +172,7 @@ trait ChecksAccess
         if (\Auth::guest() && !$this->user)
             throw new PermyUserNotSetException('User is not set');
 
+        $this->user = \Auth::user();
         $model = \Config::get('auth.model');
 
         if ( ! $this->user instanceof $model)
