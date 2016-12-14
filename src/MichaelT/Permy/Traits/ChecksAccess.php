@@ -54,7 +54,7 @@ trait ChecksAccess
         $current_permission = false;
 
         // Validate or grab default logical operator
-        $operator = $this->getOperator(array_key_exists('operator', $routes) ? $routes['operator'] : '');
+        $operator = $this->getLogicalOperator(array_key_exists('operator', $routes) ? $routes['operator'] : '');
 
         // remove the provided operator, if any
         unset($routes['operator']);
@@ -188,23 +188,23 @@ trait ChecksAccess
     /**
      * Perform logical operations on set of permissions
      *
-     * @param  boolean $route_permission
-     * @param  boolean $current_permission
+     * @param  boolean $bool1
+     * @param  boolean $bool2
      * @param  string  $operator
      * @return string
     **/
-    private function logicalUnion($route_permission, $current_permission, $operator = '')
+    private function logicalUnion($bool1, $bool2, $operator = '')
     {
-        $operator = $this->getOperator($operator);
+        $operator = $this->getLogicalOperator($operator);
 
         if ($operator == 'and')
-            return $route_permission && $current_permission;
+            return (bool) $bool1 && (bool) $bool2;
 
         if ($operator == 'or')
-            return $route_permission || $current_permission;
+            return (bool) $bool1 || (bool) $bool2;
 
         if ($operator == 'xor')
-            return $route_permission xor $current_permission;
+            return (bool) $bool1 xor (bool) $bool2;
     }
 
     /**
@@ -213,7 +213,7 @@ trait ChecksAccess
      *
      * @return string
     **/
-    private function getOperator($operator = '')
+    private function getLogicalOperator($operator = '')
     {
         $available_operators = ['and', 'or', 'xor'];
         $user_operator = $operator ? $operator : \Config::get('laravel-permy::logic_operator');
