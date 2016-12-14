@@ -13,25 +13,74 @@ trait ChecksAccess
     /**
      * Check if the user doesn't have permissions for route
      *
-     * @param  mixed (string|Illuminate\Routing\Route) $route
+     * @param  mixed (array|string|Illuminate\Routing\Route) $routes
      * @param  string $operator
      * @param  boolean $extra_check
      * @return boolean
     **/
-    final public function cant($route, $operator='and', $extra_check=false)
+    final public function cant($routes, $operator = 'and', $extra_check = false)
     {
-        return $this->permissionLogicalUnion(!$this->can($route), $extra_check, $operator);
+        return $this->permissionLogicalUnion(!$this->can($routes), $extra_check, $operator);
     }
 
     /**
      * Check if the user has permissions for route
+     *
+     * @param  mixed (array|string|Illuminate\Routing\Route) $routes
+     * @param  string $operator
+     * @param  boolean $extra_check
+     * @return boolean
+    **/
+    final public function can($routes, $operator = 'and', $extra_check = true)
+    {
+        $permission = is_array($routes)
+            ? $this->canArray($routes)
+            : $this->canSingle($routes);
+
+        return $this->permissionLogicalUnion($permission, $extra_check, $operator);
+    }
+
+    /**
+     * Check user permissions for an array of routes
+     *
+     * @param  array  $routes
+     * @param  string $operator
+     * @param  boolean $extra_check
+     * @return boolean
+    **/
+    private function canArray(array $routes)
+    {
+        $permission = false;
+        $current_permission = false;
+
+        // Validate or grab default logical operator
+        $operator = $this->getOperator(array_key_exists('operator', $routes) ? $routes['operator'] : '');
+
+        // remove the provided operator, if any
+        unset($routes['operator']);
+        $max = count($routes);
+
+        // Loop through each route and perform a logical operation
+        for ($i=0; $i < $max; $i++) {
+            $current_permission = $this->canSingle($routes[$i]);
+
+            $permission = ($i == 0)
+                ? $current_permission
+                : $this->permissionLogicalUnion($permission, $current_permission, $operator);
+        }
+
+        return $permission;
+    }
+
+    /**
+     * Check user permissions for a single route
      *
      * @param  mixed (string|Illuminate\Routing\Route) $route
      * @param  string $operator
      * @param  boolean $extra_check
      * @return boolean
     **/
-    final public function can($route, $operator='and', $extra_check=true)
+    private function canSingle($route)
     {
         $this->checkUser();
 
@@ -57,10 +106,8 @@ trait ChecksAccess
             return false;
         }
 
-        // Parse the permission to route and handle additional checks
-        $permission = $this->parsePermissions($permissions, $controller, $method);
-
-        return $this->permissionLogicalUnion($permission, $extra_check, $operator);
+        // Parse the route permission
+        return $this->parsePermissions($permissions, $controller, $method);
     }
 
     /**
