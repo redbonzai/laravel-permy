@@ -18,9 +18,9 @@ trait ChecksAccess
      * @param  boolean $extra_check
      * @return boolean
     **/
-    final public function cant($routes, $operator = 'and', $extra_check = false)
+    final public function cant($routes, $operator = '', $extra_check = false)
     {
-        return $this->permissionLogicalUnion(!$this->can($routes), $extra_check, $operator);
+        return $this->logicalUnion(!$this->can($routes), $extra_check, $operator);
     }
 
     /**
@@ -31,13 +31,13 @@ trait ChecksAccess
      * @param  boolean $extra_check
      * @return boolean
     **/
-    final public function can($routes, $operator = 'and', $extra_check = true)
+    final public function can($routes, $operator = '', $extra_check = true)
     {
         $permission = is_array($routes)
             ? $this->canArray($routes)
             : $this->canSingle($routes);
 
-        return $this->permissionLogicalUnion($permission, $extra_check, $operator);
+        return $this->logicalUnion($permission, $extra_check, $operator);
     }
 
     /**
@@ -66,7 +66,7 @@ trait ChecksAccess
 
             $permission = ($i == 0)
                 ? $current_permission
-                : $this->permissionLogicalUnion($permission, $current_permission, $operator);
+                : $this->logicalUnion($permission, $current_permission, $operator);
         }
 
         return $permission;
@@ -179,7 +179,7 @@ trait ChecksAccess
 
             $route_permission = ($i == 0)
                 ? $current_permission
-                : $this->permissionLogicalUnion($route_permission, $current_permission);
+                : $this->logicalUnion($route_permission, $current_permission);
         }
 
         return $route_permission;
@@ -193,7 +193,7 @@ trait ChecksAccess
      * @param  string  $operator
      * @return string
     **/
-    private function permissionLogicalUnion($route_permission, $current_permission, $operator = '')
+    private function logicalUnion($route_permission, $current_permission, $operator = '')
     {
         $operator = $this->getOperator($operator);
 
