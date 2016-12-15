@@ -18,7 +18,7 @@ trait ChecksAccess
      * @param  boolean $extra_check
      * @return boolean
     **/
-    final public function cant($routes, $operator = '', $extra_check = false)
+    final public function cant($routes, $operator = 'and', $extra_check = false)
     {
         return $this->logicalUnion(!$this->can($routes), $extra_check, $operator);
     }
@@ -31,7 +31,7 @@ trait ChecksAccess
      * @param  boolean $extra_check
      * @return boolean
     **/
-    final public function can($routes, $operator = '', $extra_check = true)
+    final public function can($routes, $operator = 'and', $extra_check = true)
     {
         $permission = is_array($routes)
             ? $this->canArray($routes)
@@ -44,8 +44,6 @@ trait ChecksAccess
      * Check user permissions for an array of routes
      *
      * @param  array  $routes
-     * @param  string $operator
-     * @param  boolean $extra_check
      * @return boolean
     **/
     private function canArray(array $routes)
@@ -53,11 +51,15 @@ trait ChecksAccess
         $permission = false;
         $current_permission = false;
 
-        // Validate or grab default logical operator
-        $operator = $this->getLogicalOperator(array_key_exists('operator', $routes) ? $routes['operator'] : '');
+        // Set default logical operator
+        $operator = 'and';
 
-        // remove the provided operator, if any
-        unset($routes['operator']);
+        // Validate provided logical operator
+        if (array_key_exists('operator', $routes)) {
+            $operator = $this->getLogicalOperator($routes['operator']);
+            unset($routes['operator']);
+        }
+
         $max = count($routes);
 
         // Loop through each route and perform a logical operation
@@ -76,8 +78,6 @@ trait ChecksAccess
      * Check user permissions for a single route
      *
      * @param  mixed (string|Illuminate\Routing\Route) $route
-     * @param  string $operator
-     * @param  boolean $extra_check
      * @return boolean
     **/
     private function canSingle($route)
@@ -179,7 +179,7 @@ trait ChecksAccess
 
             $route_permission = ($i == 0)
                 ? $current_permission
-                : $this->logicalUnion($route_permission, $current_permission);
+                : $this->logicalUnion($route_permission, $current_permission, '');
         }
 
         return $route_permission;

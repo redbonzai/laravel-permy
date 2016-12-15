@@ -3,6 +3,7 @@
 namespace MichaelT\Permy\Commands;
 
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 
 class Can extends Command
@@ -14,7 +15,9 @@ class Can extends Command
     {
         $model = \Config::get('auth.model');
         $user_id = $this->argument('user_id');
-        $route = $this->argument('route');
+        $routes = $this->parseRoutes();
+        $operator = $this->option('operator');
+        $extra_check = filter_var($this->option('extra_check'), FILTER_VALIDATE_BOOLEAN);
 
         try {
             $user = $model::findOrFail($user_id);
@@ -23,12 +26,18 @@ class Can extends Command
             return;
         }
 
-        if (\Permy::setUser($user)->can($route)) {
+        if (\Permy::setUser($user)->can($routes, $operator, $extra_check)) {
             $this->info('Access is allowed');
             return;
         }
 
         $this->error('Access is restricted');
+    }
+
+    public function parseRoutes()
+    {
+        $routes = str_replace(', ', ',', $this->argument('routes'));
+        return explode(',', $routes);
     }
 
     /**
@@ -45,10 +54,34 @@ class Can extends Command
                 'ID of the user to check',
                 null
             ], [
-                'route',
+                'routes',
                 InputArgument::REQUIRED,
-                'Route name or action to check (eg. users.index or Acme\Users\UsersController@index)',
+                'Single or comma separated route names or actions to check (eg. users.index, users.edit or Acme\Users\UsersController@index)',
                 null
+            ],
+        ];
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            [
+                'operator',
+                'o',
+                InputOption::VALUE_OPTIONAL,
+                'Logical operator',
+                'and'
+            ], [
+                'extra_check',
+                'e',
+                InputOption::VALUE_OPTIONAL,
+                'Extra boolean to check',
+                true
             ],
         ];
     }
