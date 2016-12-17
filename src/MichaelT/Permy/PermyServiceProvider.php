@@ -17,7 +17,7 @@ class PermyServiceProvider extends ServiceProvider
      *
      * @var bool
      */
-    protected $defer = false;
+    protected $defer = true;
 
     /**
      * Bootstrap the application events.
@@ -26,8 +26,19 @@ class PermyServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->package('michaeltintiuc/laravel-permy');
-        $this->commands(['MichaelT\Permy\Commands\Can']);
+        // checking directly through $this->app::VERSION fails in php ~5.5.14
+        $app = $this->app;
+
+        if (version_compare($app::VERSION, '5.0.0') == 1) {
+            $this->loadTranslationsFrom(__DIR__.'/../../lang', 'laravel-permy');
+            $this->publishes([__DIR__.'/../../config/config.php' => config_path('permy.php')], 'config');
+            $this->publishes([__DIR__.'/../../migrations/' => database_path('/migrations')], 'migrations');
+        } else {
+            $this->package('michaeltintiuc/laravel-permy');
+        }
+
+        if ($this->app->runningInConsole())
+            $this->commands(['MichaelT\Permy\Commands\Can']);
     }
 
     /**
@@ -37,7 +48,7 @@ class PermyServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bindShared('permy', function()
+        $this->app->singleton('permy', function()
         {
             return new PermyHandler;
         });
@@ -50,6 +61,6 @@ class PermyServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return [];
+        return ['MichaelT\Permy\PermyHandler'];
     }
 }

@@ -16,8 +16,6 @@ class CreatePermyTable extends Migration
         {
             $table->increments('id');
 
-            $table->boolean('is_default')->unsigned()->nullable();
-
             $table->string('name');
             $table->string('desc');
 

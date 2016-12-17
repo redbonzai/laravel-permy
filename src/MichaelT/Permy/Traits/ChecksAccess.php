@@ -237,13 +237,6 @@ trait ChecksAccess
         // try setting the default user as the authenticated user
         if (!$this->user)
             $this->user = \Auth::user();
-
-        // Get the class to check against
-        $model = \Config::get('auth.model');
-
-        // Make sure we're working with a valid object
-        if (!$this->user instanceof $model)
-            throw new PermyUserNotModelException("User is not an instance of $model");
     }
 
     /**
