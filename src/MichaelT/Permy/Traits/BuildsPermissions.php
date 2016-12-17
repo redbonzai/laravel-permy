@@ -85,44 +85,12 @@ trait BuildsPermissions
      **/
     private function parseFilters(Route $route)
     {
-        // Get available and route filters
-        $available_filters = array_fill_keys((array) $this->getConfig('filters.fillable'), null);
-
-        // We've got route filters
-        if (array_intersect_key($available_filters, $route->beforeFilters()))
+        // Get available route filters/middleware
+        if ($this->parseRouteFilters($route))
             return true;
 
-        // Search for controllers with before filters set
-        // Get controller name and method
-        list($controller, $method) = explode('@', $route->getActionName());
-
-        try {
-            // Throws an exception for controllers whose dependencies are not registered
-            $controller_filters = \App::make($controller)->getBeforeFilters();
-        } catch (\Exception $e) {
-            return false;
-        }
-
-        $max = count($controller_filters);
-
-        for ($i=0; $i < $max; $i++) {
-            // Check if provided methods are set on the controller
-            $key_exists = array_key_exists($controller_filters[$i]['original'], $available_filters);
-            $applied_to_method = true;
-
-            // No point in further logic if it's not our filter
-            if (!$key_exists)
-                return false;
-
-            // is our method whitelisted or blacklisted?
-            if (isset($controller_filters[$i]['options']['only']))
-                $applied_to_method = in_array($method, (array) $controller_filters[$i]['options']['only']);
-            elseif (isset($controller_filters[$i]['options']['except']))
-                $applied_to_method = !in_array($method, (array) $controller_filters[$i]['options']['except']);
-
-            if ($applied_to_method)
-                return true;
-        }
+        if ($this->parseControllerFilters($route))
+            return true;
 
         return false;
     }
@@ -210,6 +178,67 @@ trait BuildsPermissions
         } catch (\Exception $e) {
             // Failed to update language file
             $this->permyNotifyFileUpdateError($e);
+        }
+    }
+
+    /**
+     * Check if route filters match with the ones provided
+     *
+     * @return boolean
+     */
+    private function parseRouteFilters(Route $route)
+    {
+        $available_filters = (array) $this->getConfig('filters.fillable');
+
+        if (version_compare(self::$app_version, '5.0.0') >= 0)
+            return (bool) array_intersect($available_filters, $route->middleware());
+
+        return (bool) array_intersect_key(array_fill_keys($available_filters, null), $route->beforeFilters());
+    }
+
+    /**
+     * Check if controller filters match with the ones provided
+     *
+     * @return boolean
+     */
+    private function parseControllerFilters(Route $route)
+    {
+        $available_filters = (array) $this->getConfig('filters.fillable');
+
+        // Life got easier with Laravel >= 5.2.0
+        if (version_compare(self::$app_version, '5.2.0') >= 0)
+            return (bool) array_intersect($available_filters, $route->controllerMiddleware());
+
+        // Life is Hell with Laravel <= 5.1.0
+        // Get controller name and method
+        list($controller, $method) = explode('@', $route->getActionName());
+
+        try {
+            // Throws an exception for controllers whose dependencies are not registered
+            $controller_filters = (version_compare(self::$app_version, '5.0.0') >= 0)
+                ? \App::make($controller)->getMiddleware()
+                : \App::make($controller)->getBeforeFilters();
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        $max = count($controller_filters);
+
+        // Check if provided methods are set on the controller
+        for ($i=0; $i < $max; $i++) {
+            $key = (version_compare(self::$app_version, '5.0.0') >= 0) ? 'middleware' : 'original';
+
+            // No point in further logic if it's not our filter
+            if (!in_array($controller_filters[$i][$key], $available_filters))
+                return false;
+
+            $options = $controller_filters[$i]['options'];
+
+            // is our method whitelisted or blacklisted?
+            if (isset($options['only']))
+                return in_array($method, (array) $options['only']);
+            elseif (isset($options['except']))
+                return !in_array($method, (array) $options['except']);
         }
     }
 }

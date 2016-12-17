@@ -63,6 +63,6 @@ class PermyServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return ['MichaelT\Permy\PermyHandler'];
+        return ['permy'];
     }
 }

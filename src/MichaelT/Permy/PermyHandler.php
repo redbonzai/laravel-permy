@@ -32,9 +32,8 @@ class PermyHandler
      */
     final public function formatControllerName($controller)
     {
-        return strtolower(str_replace(['\\', 'Controller'], ['::', ''], $controller));
+        return strtolower(str_replace(['\\', 'Controllers', 'Controller'], ['::', 'controllers', ''], $controller));
     }
-
 
     /**
      * Get path to language files based on Laravel version
@@ -44,14 +43,13 @@ class PermyHandler
     private function getLangPath()
     {
         $locale = \App::getLocale();
-        $suffix = "$locale/laravel-permy/";
 
         if (version_compare(self::$app_version, '5.1.0') >= 0)
-            return resource_path()."/lang/vendor/$suffix";
+            return resource_path()."/lang/vendor/laravel-permy/$locale/";
         elseif (version_compare(self::$app_version, '5.0.0') >= 0)
-            return resource_path()."/lang/packages/$suffix";
+            return resource_path()."/lang/packages/$locale/laravel-permy/";
         else
-            return app_path()."/lang/packages/$suffix";
+            return app_path()."/lang/packages/$locale/laravel-permy/";
     }
 
     /**
