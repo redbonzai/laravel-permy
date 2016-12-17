@@ -31,7 +31,8 @@ class PermyServiceProvider extends ServiceProvider
 
         if (version_compare($app::VERSION, '5.0.0') == 1) {
             $this->loadTranslationsFrom(__DIR__.'/../../lang', 'laravel-permy');
-            $this->publishes([__DIR__.'/../../config/config.php' => config_path('permy.php')], 'config');
+            $this->mergeConfigFrom( __DIR__.'/../../config/config.php', 'laravel-permy');
+            $this->publishes([__DIR__.'/../../config/config.php' => config_path('permy.php')], 'laravel-permy/config.php');
             $this->publishes([__DIR__.'/../../migrations/' => database_path('/migrations')], 'migrations');
         } else {
             $this->package('michaeltintiuc/laravel-permy');

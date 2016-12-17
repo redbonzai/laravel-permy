@@ -100,7 +100,10 @@ trait ChecksAccess
 
         try {
             // Fetch the appropriate user's permission
-            $permissions = $this->user->permy()->lists($controller);
+            $app = app();
+            $permissions =  (version_compare($app::VERSION, '5.2.0') == 1)
+                ? $this->user->permy()->pluck($controller)->toArray()
+                : $this->user->permy()->lists($controller);
         } catch (\Exception $e) {
             $this->permyNotifyPermissionsNotFound();
             return false;
