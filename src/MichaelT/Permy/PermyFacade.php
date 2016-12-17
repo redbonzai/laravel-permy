@@ -1,5 +1,4 @@
 <?php
-
 namespace MichaelT\Permy;
 
 use Illuminate\Support\Facades\Facade;

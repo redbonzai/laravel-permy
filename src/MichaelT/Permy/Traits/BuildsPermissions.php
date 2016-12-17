@@ -1,5 +1,4 @@
 <?php
-
 namespace MichaelT\Permy\Traits;
 
 use Lang;
@@ -87,7 +86,7 @@ trait BuildsPermissions
     private function parseFilters(Route $route)
     {
         // Get available and route filters
-        $available_filters = array_fill_keys((array) \Config::get('laravel-permy::filters.fillable'), null);
+        $available_filters = array_fill_keys((array) $this->getConfig('filters.fillable'), null);
 
         // We've got route filters
         if (array_intersect_key($available_filters, $route->beforeFilters()))
@@ -198,8 +197,7 @@ trait BuildsPermissions
         if (!$this->needsUpdate)
             return;
 
-        $locale = \App::getLocale();
-        $path = app_path()."/lang/packages/$locale/laravel-permy/";
+        $path = $this->getLangPath();
         $file = "permy.php";
 
         if (!\File::exists($path.$file))

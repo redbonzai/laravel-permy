@@ -1,5 +1,4 @@
 <?php
-
 namespace MichaelT\Permy\Commands;
 
 use Illuminate\Console\Command;

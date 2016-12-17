@@ -1,5 +1,4 @@
 <?php
-
 namespace MichaelT\Permy;
 
 /**
@@ -16,12 +15,7 @@ class PermyModel extends \Eloquent
 
     public function users()
     {
-        return $this->belongsToMany(\Config::get('auth.model'), 'permy_user', 'permy_id', 'user_id');
-    }
-
-    public function scopeGetList($query, $merge=['' => 'NOT SET'])
-    {
-        return $merge + $query->orderBy('name', 'asc')->lists('name', 'id');
+        return $this->belongsToMany('App\User', 'permy_user', 'permy_id', 'user_id');
     }
 
     /**

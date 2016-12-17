@@ -1,5 +1,4 @@
 <?php
-
 namespace MichaelT\Permy\Traits;
 
 trait Notifies

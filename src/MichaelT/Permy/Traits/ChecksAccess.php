@@ -1,5 +1,4 @@
 <?php
-
 namespace MichaelT\Permy\Traits;
 
 use MichaelT\Permy\Exceptions\PermyUserNotSetException;
@@ -100,8 +99,7 @@ trait ChecksAccess
 
         try {
             // Fetch the appropriate user's permission
-            $app = app();
-            $permissions =  (version_compare($app::VERSION, '5.2.0') == 1)
+            $permissions = (version_compare(self::$app_version, '5.1.0') >= 0)
                 ? $this->user->permy()->pluck($controller)->toArray()
                 : $this->user->permy()->lists($controller);
         } catch (\Exception $e) {
@@ -219,7 +217,7 @@ trait ChecksAccess
     private function getLogicalOperator($operator = '')
     {
         $available_operators = ['and', 'or', 'xor'];
-        $user_operator = $operator ? $operator : \Config::get('laravel-permy::logic_operator');
+        $user_operator = $operator ? $operator : $this->getConfig('logic_operator');
 
         return in_array($user_operator, $available_operators)
             ? $user_operator

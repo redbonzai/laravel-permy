@@ -12,8 +12,7 @@ class CreatePermyTable extends Migration
      */
     public function up()
     {
-        Schema::create('permy', function(Blueprint $table)
-        {
+        Schema::create('permy', function (Blueprint $table) {
             $table->increments('id');
 
             $table->string('name');

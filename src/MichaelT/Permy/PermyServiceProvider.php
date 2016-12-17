@@ -1,5 +1,4 @@
 <?php
-
 namespace MichaelT\Permy;
 
 use Illuminate\Support\ServiceProvider;
@@ -29,14 +28,17 @@ class PermyServiceProvider extends ServiceProvider
         // checking directly through $this->app::VERSION fails in php ~5.5.14
         $app = $this->app;
 
-        if (version_compare($app::VERSION, '5.0.0') == 1) {
-            $this->loadTranslationsFrom(__DIR__.'/../../lang', 'laravel-permy');
-            $this->mergeConfigFrom( __DIR__.'/../../config/config.php', 'laravel-permy');
-            $this->publishes([__DIR__.'/../../config/config.php' => config_path('permy.php')], 'laravel-permy/config.php');
-            $this->publishes([__DIR__.'/../../migrations/' => database_path('/migrations')], 'migrations');
-        } else {
+        if (version_compare($app::VERSION, '5.0.0') >= 0) {
+            $path = __DIR__.'/../..';
+
+            $this->loadTranslationsFrom("$path/lang", 'laravel-permy');
+            $this->mergeConfigFrom("$path/config/config.php", 'laravel-permy');
+
+            $this->publishes(["$path/config/config.php" => config_path('laravel-permy.php')], 'config');
+            $this->publishes(["$path/migrations/" => database_path('/migrations')], 'migrations');
+            $this->publishes(["$path/lang/" => resource_path('lang/vendor/laravel-permy')], 'translations');
+        } else
             $this->package('michaeltintiuc/laravel-permy');
-        }
 
         if ($this->app->runningInConsole())
             $this->commands(['MichaelT\Permy\Commands\Can']);
@@ -49,8 +51,7 @@ class PermyServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('permy', function()
-        {
+        $this->app->singleton('permy', function () {
             return new PermyHandler;
         });
     }
