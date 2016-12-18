@@ -57,7 +57,7 @@ class PermyHandler
      *
      * @return string
      */
-    private function getConfig($option)
+    final public function getConfig($option)
     {
         if (version_compare(self::$app_version, '5.0.0') >= 0)
             return \Config::get("laravel-permy.$option");

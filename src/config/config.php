@@ -14,6 +14,9 @@ return
     // xor: only one of the permissions must be set to true
     'logic_operator' => 'and',
 
+    // Users model
+    'users_model' => 'App\User',
+
     // Available filters
     //
     // An array of filters based on which Permy builds a list of permissions to manage

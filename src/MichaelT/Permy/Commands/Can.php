@@ -12,7 +12,7 @@ class Can extends Command
 
     public function fire()
     {
-        $model = \Config::get('auth.model');
+        $model = \Permy::getConfig('users_model');
         $user_id = $this->argument('user_id');
         $routes = $this->parseRoutes();
         $operator = $this->option('operator');
