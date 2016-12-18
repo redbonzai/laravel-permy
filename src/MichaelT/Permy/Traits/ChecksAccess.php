@@ -197,6 +197,7 @@ trait ChecksAccess
     private function logicalUnion($bool1, $bool2, $operator = '')
     {
         $operator = $this->getLogicalOperator($operator);
+        $bool2 = is_callable($bool2) ? $bool2() : $bool2;
 
         if ($operator == 'and')
             return (bool) $bool1 && (bool) $bool2;
