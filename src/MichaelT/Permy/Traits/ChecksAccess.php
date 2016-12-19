@@ -16,7 +16,7 @@ trait ChecksAccess
     **/
     final public function cant($routes, $operator = 'and', $extra_check = false)
     {
-        $permission = ($this->getConfig('godmode')) ? true : !$this->can($routes);
+        $permission = (self::$godmode ? true : !$this->can($routes);
         return $this->logicalUnion(!$this->can($routes), $extra_check, $operator);
     }
 
@@ -30,7 +30,7 @@ trait ChecksAccess
     **/
     final public function can($routes, $operator = 'and', $extra_check = true)
     {
-        if ($this->getConfig('godmode')) {
+        if (self::$godmode {
             $permission = true;
         } else {
             $permission = is_array($routes)

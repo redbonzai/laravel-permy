@@ -23,6 +23,7 @@ class PermyHandler
         $app = app();
         self::$app_version = $app::VERSION;
         self::$debug = $this->getConfig('debug');
+        self::$godmode = $this->getConfig('godmode');
     }
 
     /**
@@ -109,14 +110,27 @@ class PermyHandler
     }
 
     /**
-     * Set the user
+     * Set debug
      *
      * @param bool  $debug
      * @return PermyHandler
     **/
-    public function setDebug($debug)
+    public function setDebug($bool)
     {
-        self::$debug = $debug;
+        self::$debug = $bool;
+
+        return $this;
+    }
+
+    /**
+     * Set god mode
+     *
+     * @param bool  $mode
+     * @return PermyHandler
+    **/
+    public function setGodmode($bool)
+    {
+        self::$godmode = $bool;
 
         return $this;
     }
