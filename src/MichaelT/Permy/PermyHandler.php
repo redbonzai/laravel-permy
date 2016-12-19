@@ -16,6 +16,7 @@ class PermyHandler
 
     private $permissions;
     private static $debug;
+    private static $godmode;
     private static $app_version;
 
     public function __construct()
