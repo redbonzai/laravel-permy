@@ -12,16 +12,19 @@ class Can extends Command
 
     public function fire()
     {
-        $model = \Permy::getConfig('users_model');
+        $model = $this->option('model');
         $user_id = $this->argument('user_id');
         $routes = $this->parseRoutes();
         $operator = $this->option('operator');
         $extra_check = filter_var($this->option('extra_check'), FILTER_VALIDATE_BOOLEAN);
 
+        if (\Permy::getConfig('godmode'))
+            $this->comment('Running in GOD MODE. All route permissions return true.');
+
         try {
             $user = $model::findOrFail($user_id);
         } catch (\Exception $e) {
-            $this->error("User with ID of $user_id not found");
+            $this->error("User with ID of $user_id not found. Using $model class");
             return;
         }
 
@@ -81,6 +84,12 @@ class Can extends Command
                 InputOption::VALUE_OPTIONAL,
                 'Extra boolean to check',
                 true
+            ], [
+                'model',
+                'm',
+                InputOption::VALUE_OPTIONAL,
+                'Model class to use when fetching a user. Defaults to the class set in permy config',
+                \Permy::getConfig('users_model')
             ],
         ];
     }

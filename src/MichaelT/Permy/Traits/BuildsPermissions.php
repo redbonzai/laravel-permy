@@ -128,9 +128,6 @@ trait BuildsPermissions
             'name' => Lang::get('laravel-permy::defaults.controller.name', $lang_data),
             'desc' => Lang::get('laravel-permy::defaults.controller.desc', $lang_data),
         ];
-
-        // Permy language file updated with '$controller' controller. Please set data for it.
-        $this->permyNotifyControllerAppended($controller);
     }
 
     /**
@@ -149,9 +146,6 @@ trait BuildsPermissions
             'name' => Lang::get('laravel-permy::defaults.method.name', $lang_data),
             'desc' => Lang::get('laravel-permy::defaults.method.desc', $lang_data),
         ];
-
-        // Permy file does not contain method '$method' for '$controller' controller
-        $this->permyNotifyMethodAppended($controller, $method);
     }
 
     /**
@@ -168,16 +162,15 @@ trait BuildsPermissions
         $path = $this->getLangPath();
         $file = "permy.php";
 
-        if (!\File::exists($path.$file))
-            \File::makeDirectory($path, $recursive=true);
+        if (!\File::exists($path.$file)) {
+            if (!\File::makeDirectory($path, $recursive=true) && self::$debug)
+                throw new \PermyFileCreateException('Failed to create the permissions language file');
+        }
 
-        try {
-            // Update permissions language file with new items
-            if (!\File::put($path.$file, '<?php return '.var_export($this->permissions, true).';'))
-                throw new \Exception('Failed to update language file!');
-        } catch (\Exception $e) {
-            // Failed to update language file
-            $this->permyNotifyFileUpdateError($e);
+        // Update permissions language file with new items
+        if (!\File::put($path.$file, '<?php return '.var_export($this->permissions, true).';')) {
+            if (self::$debug)
+                throw new \PermyFileUpdateException('Failed to update the permissions language file');
         }
     }
 

@@ -1,9 +1,6 @@
 <?php
 namespace MichaelT\Permy\Traits;
 
-use MichaelT\Permy\Exceptions\PermyUserNotSetException;
-use MichaelT\Permy\Exceptions\PermyUserNotModelException;
-
 trait ChecksAccess
 {
     private $user;
@@ -19,6 +16,7 @@ trait ChecksAccess
     **/
     final public function cant($routes, $operator = 'and', $extra_check = false)
     {
+        $permission = ($this->getConfig('godmode')) ? true : !$this->can($routes);
         return $this->logicalUnion(!$this->can($routes), $extra_check, $operator);
     }
 
@@ -32,9 +30,13 @@ trait ChecksAccess
     **/
     final public function can($routes, $operator = 'and', $extra_check = true)
     {
-        $permission = is_array($routes)
-            ? $this->canArray($routes)
-            : $this->canSingle($routes);
+        if ($this->getConfig('godmode')) {
+            $permission = true;
+        } else {
+            $permission = is_array($routes)
+                ? $this->canArray($routes)
+                : $this->canSingle($routes);
+        }
 
         return $this->logicalUnion($permission, $extra_check, $operator);
     }
@@ -90,7 +92,9 @@ trait ChecksAccess
 
         // Check if route has a controller
         if (!isset($route_action['controller'])) {
-            $this->permyNotifyControllerNotSet($route_obj->getUri());
+            if (self::$debug)
+                throw new \PermyControllerNotSetException('Controller not set');
+
             return false;
         }
 
@@ -103,7 +107,9 @@ trait ChecksAccess
                 ? $this->user->permy()->pluck($controller)->toArray()
                 : $this->user->permy()->lists($controller);
         } catch (\Exception $e) {
-            $this->permyNotifyPermissionsNotFound();
+            if (self::$debug)
+                throw new \PermyPermissionsNotFoundException('Permissions not found');
+
             return false;
         }
 
@@ -168,9 +174,8 @@ trait ChecksAccess
 
             // Permissions were not set
             if (!isset($permission_obj->{$method})) {
-                // If user has only 1 permission set against him - notify and exit immediately
-                if ($max == 1)
-                    $this->permyNotifyMethodPermissionNotSet($controller, $method);
+                if (self::$debug)
+                    throw new \PermyMethodNotSetException('Method permissions are not set');
 
                 break;
             }
@@ -223,44 +228,5 @@ trait ChecksAccess
         return in_array($user_operator, $available_operators)
             ? $user_operator
             : 'and';
-    }
-
-    /**
-     * Check that the provided user is valid and try setting a default one
-     *
-     * @return void
-    **/
-    private function checkUser()
-    {
-        // bail if not authenticated user or custom user provided
-        if (\Auth::guest() && !$this->user)
-            throw new PermyUserNotSetException('User is not set');
-
-        // try setting the default user as the authenticated user
-        if (!$this->user)
-            $this->user = \Auth::user();
-    }
-
-    /**
-     * Set the user
-     *
-     * @return User instance
-    **/
-    public function setUser($user)
-    {
-        $this->user = $user;
-        $this->checkUser();
-
-        return $this;
-    }
-
-    /**
-     * Get the user
-     *
-     * @return User
-    **/
-    public function getUser()
-    {
-        return $this->user;
     }
 }

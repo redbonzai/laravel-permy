@@ -1,7 +1,6 @@
 <?php
 namespace MichaelT\Permy;
 
-use MichaelT\Permy\Traits\Notifies;
 use MichaelT\Permy\Traits\ChecksAccess;
 use MichaelT\Permy\Traits\BuildsPermissions;
 
@@ -13,15 +12,17 @@ use MichaelT\Permy\Traits\BuildsPermissions;
  **/
 class PermyHandler
 {
-    use ChecksAccess, BuildsPermissions, Notifies;
+    use ChecksAccess, BuildsPermissions;
 
     private $permissions;
+    private static $debug;
     private static $app_version;
 
     public function __construct()
     {
         $app = app();
         self::$app_version = $app::VERSION;
+        self::$debug = $this->getConfig('debug');
     }
 
     /**
@@ -63,5 +64,60 @@ class PermyHandler
             return \Config::get("laravel-permy.$option");
         else
             return \Config::get("laravel-permy::$option");
+    }
+
+    /**
+     * Check that the provided user is valid and try setting a default one
+     *
+     * @return void
+    **/
+    private function checkUser()
+    {
+        // bail if not authenticated user or custom user provided
+        if (\Auth::guest() && !$this->user)
+            throw new \PermyUserNotSetException('User is not set');
+
+        // try setting the default user as the authenticated user
+        if (!$this->user)
+            $this->user = \Auth::user();
+
+         // Get the class to check against
+        $model = $this->getConfig('users_model');
+    }
+
+    /**
+     * Set the user
+     *
+     * @return PermyHandler
+    **/
+    public function setUser($user)
+    {
+        $this->user = $user;
+        $this->checkUser();
+
+        return $this;
+    }
+
+    /**
+     * Get the user
+     *
+     * @return User
+    **/
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set the user
+     *
+     * @param bool  $debug
+     * @return PermyHandler
+    **/
+    public function setDebug($debug)
+    {
+        self::$debug = $debug;
+
+        return $this;
     }
 }

@@ -37,8 +37,9 @@ class PermyServiceProvider extends ServiceProvider
             $this->publishes(["$path/config/config.php" => config_path('laravel-permy.php')], 'config');
             $this->publishes(["$path/migrations/" => database_path('/migrations')], 'migrations');
             $this->publishes(["$path/lang/" => resource_path('lang/vendor/laravel-permy')], 'translations');
-        } else
+        } else {
             $this->package('michaeltintiuc/laravel-permy');
+        }
 
         if ($this->app->runningInConsole())
             $this->commands(['MichaelT\Permy\Commands\Can']);

@@ -15,7 +15,19 @@ return
     'logic_operator' => 'and',
 
     // Users model
+    // used in:
+    // the CLI artisan command (permy:can)
+    // the PermyModel for describing the many-to-many relation with the User
     'users_model' => 'App\User',
+
+    // When set to true, all route permissions return true
+    // useful for debugging
+    // best to be set in your .env file
+    'godmode' => false,
+
+    // When set to true, all exceptions during permission checking will be thrown
+    // best to be set in your .env file
+    'debug' => false,
 
     // Available filters
     //

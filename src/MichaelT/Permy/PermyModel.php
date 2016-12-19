@@ -15,7 +15,7 @@ class PermyModel extends \Eloquent
 
     public function users()
     {
-        return $this->belongsToMany('App\User', 'permy_user', 'permy_id', 'user_id');
+        return $this->belongsToMany(\Permy::getConfig('users_model'), 'permy_user', 'permy_id', 'user_id');
     }
 
     /**
