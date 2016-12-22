@@ -16,9 +16,12 @@ class Can extends Command
         $user_id = $this->argument('user_id');
         $routes = $this->parseRoutes();
         $operator = $this->option('operator');
+        $roles_logic_operator = $this->option('roles_logic_operator');
+        $godmode = filter_var($this->option('godmode'), FILTER_VALIDATE_BOOLEAN);
+        $debug = filter_var($this->option('debug'), FILTER_VALIDATE_BOOLEAN);
         $extra_check = filter_var($this->option('extra_check'), FILTER_VALIDATE_BOOLEAN);
 
-        if (\Permy::getConfig('godmode'))
+        if (\Permy::getConfig('godmode') || $godmode)
             $this->comment('Running in GOD MODE. All route permissions return true.');
 
         try {
@@ -28,7 +31,12 @@ class Can extends Command
             return;
         }
 
-        if (\Permy::setUser($user)->can($routes, $operator, $extra_check)) {
+        $permy = \Permy::setUser($user)
+            ->setGodmode($godmode)
+            ->setDebug($debug)
+            ->setRolesLogicOperator($roles_logic_operator);
+
+        if ($permy->can($routes, $operator, $extra_check)) {
             $this->info('Access is allowed');
             return;
         }
@@ -90,7 +98,25 @@ class Can extends Command
                 InputOption::VALUE_OPTIONAL,
                 'Model class to use when fetching a user. Defaults to the class set in permy config',
                 \Permy::getConfig('users_model')
-            ],
+            ], [
+                'godmode',
+                'g',
+                InputOption::VALUE_OPTIONAL,
+                'Enable or disable GOD MODE. Defaults to value set in permy config',
+                \Permy::getConfig('godmode')
+            ], [
+                'debug',
+                'd',
+                InputOption::VALUE_OPTIONAL,
+                'Enable or disable debugging (Exception throwing). Defaults to value set in permy config',
+                \Permy::getConfig('debug')
+            ], [
+                'roles_logic_operator',
+                'l',
+                InputOption::VALUE_OPTIONAL,
+                'Set logic operator (and, or, xor) when calculating multiple user roles . Defaults to value set in permy config',
+                \Permy::getConfig('logic_operator')
+            ]
         ];
     }
 }
