@@ -18,13 +18,21 @@ class PermyHandler
     private static $debug;
     private static $godmode;
     private static $app_version;
+    private static $roles_logic_operator;
 
     public function __construct()
     {
         $app = app();
         self::$app_version = $app::VERSION;
+
+        $this->init();
+    }
+
+    private function init()
+    {
         self::$debug = $this->getConfig('debug');
         self::$godmode = $this->getConfig('godmode');
+        self::$roles_logic_operator = $this->getConfig('logic_operator');
     }
 
     /**
@@ -132,6 +140,19 @@ class PermyHandler
     public function setGodmode($bool)
     {
         self::$godmode = $bool;
+
+        return $this;
+    }
+
+    /**
+     * Set logic operator
+     *
+     * @param string  $operator
+     * @return PermyHandler
+    **/
+    public function setRolesLogicOperator($operator)
+    {
+        self::$roles_logic_operator = $operator;
 
         return $this;
     }

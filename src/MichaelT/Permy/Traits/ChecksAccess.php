@@ -17,7 +17,10 @@ trait ChecksAccess
     final public function cant($routes, $operator = 'and', $extra_check = false)
     {
         $permission = (self::$godmode) ? true : !$this->can($routes);
-        return $this->logicalUnion(!$this->can($routes), $extra_check, $operator);
+        $result = $this->logicalUnion(!$this->can($routes), $extra_check, $operator);
+        $this->init();
+
+        return $result;
     }
 
     /**
@@ -38,7 +41,10 @@ trait ChecksAccess
                 : $this->canSingle($routes);
         }
 
-        return $this->logicalUnion($permission, $extra_check, $operator);
+        $result = $this->logicalUnion($permission, $extra_check, $operator);
+        $this->init();
+
+        return $result;
     }
 
     /**
@@ -177,15 +183,15 @@ trait ChecksAccess
                 if (self::$debug)
                     throw new \PermyMethodNotSetException('Method permissions are not set');
 
-                break;
+                $current_permission = false;
+            } else {
+                // Permissions were set - carry on with the logic
+                $current_permission = (int) $permission_obj->{$method};
             }
-
-            // Permissions were set - carry on with the logic
-            $current_permission = (int) $permission_obj->{$method};
 
             $route_permission = ($i == 0)
                 ? $current_permission
-                : $this->logicalUnion($route_permission, $current_permission, '');
+                : $this->logicalUnion($route_permission, $current_permission, self::$roles_logic_operator);
         }
 
         return $route_permission;
