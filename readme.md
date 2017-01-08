@@ -523,4 +523,4 @@ Failed to get permissions for current user
 ## Feedback
 >The back needs proper feeding and you're not doing anything about it!
 
-Collaboration, bug-reports, security issues, feature and pull requests are always welcome!
+Collaboration, bug-reports, feature and pull requests are always welcome!
