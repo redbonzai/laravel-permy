@@ -17,8 +17,8 @@ class PermyMiddleware
         // Check if user is authorized to access this route
         if (\Auth::check() && !\Permy::can($request->route())) {
             return \Request::ajax() || \Request::wantsJson()
-                ? \Response::json(['status' => 401, 'errors' => ['Unauthorized']], 401)
-                : \Response::make('401 - Forbidden', 401);
+                ? \Response::json(['status' => 403, 'errors' => ['Unauthorized']], 403)
+                : \Response::make('403 - Forbidden', 403);
         }
 
         return $next($request);

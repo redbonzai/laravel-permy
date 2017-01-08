@@ -43,7 +43,7 @@ class PermyHandler
      */
     final public function formatControllerName($controller)
     {
-        return strtolower(str_replace(['\\', 'Controllers', 'Controller'], ['::', 'controllers', ''], $controller));
+        return str_replace('\\', '::', $controller);
     }
 
     /**
@@ -66,6 +66,7 @@ class PermyHandler
     /**
      * Get config based on Laravel version
      *
+     * @param  string $option
      * @return string
      */
     final public function getConfig($option)
@@ -98,6 +99,7 @@ class PermyHandler
     /**
      * Set the user
      *
+     * @param Illuminate\Database\Eloquent\Model $user
      * @return PermyHandler
     **/
     public function setUser($user)
@@ -111,7 +113,7 @@ class PermyHandler
     /**
      * Get the user
      *
-     * @return User
+     * @return Illuminate\Database\Eloquent\Model
     **/
     public function getUser()
     {

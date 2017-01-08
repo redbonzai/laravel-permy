@@ -11,13 +11,13 @@ trait ChecksAccess
      *
      * @param  mixed (array|string|Illuminate\Routing\Route) $routes
      * @param  string $operator
-     * @param  boolean $extra_check
+     * @param  boolean|callable $extra_check
      * @return boolean
     **/
     final public function cant($routes, $operator = 'and', $extra_check = false)
     {
         $permission = (self::$godmode) ? true : !$this->can($routes);
-        $result = $this->logicalUnion(!$this->can($routes), $extra_check, $operator);
+        $result = $this->logicalUnion($permission, $extra_check, $operator);
         $this->init();
 
         return $result;
@@ -28,7 +28,7 @@ trait ChecksAccess
      *
      * @param  mixed (array|string|Illuminate\Routing\Route) $routes
      * @param  string $operator
-     * @param  boolean $extra_check
+     * @param  boolean|callable $extra_check
      * @return boolean
     **/
     final public function can($routes, $operator = 'and', $extra_check = true)
@@ -201,7 +201,7 @@ trait ChecksAccess
      * Perform logical operations on set of permissions
      *
      * @param  boolean $bool1
-     * @param  boolean $bool2
+     * @param  boolean|callable $bool2
      * @param  string  $operator
      * @return string
     **/

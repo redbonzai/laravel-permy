@@ -1,17 +1,16 @@
 <?php
 
-return
-[
-    // If multiple groups are assigned to user
+return [
+    // If multiple permissions are assigned to a user
     // and there are conflicting permissions per route
     // which logical operator to use
     //
     // Allowed values: and, or, xor
     // Default: and
     // Behavior:
-    // and: all permissions must be set to true
-    // or: at least one of the permissions must be set to true
-    // xor: only one of the permissions must be set to true
+    // and: all permissions must be true
+    // or: at least one of the permissions must be true
+    // xor: https://en.wikipedia.org/wiki/Exclusive_or
     'logic_operator' => 'and',
 
     // Users model
@@ -22,17 +21,15 @@ return
 
     // When set to true, all route permissions return true
     // useful for debugging
-    // best to be set in your .env file
     'godmode' => false,
 
     // When set to true, all exceptions during permission checking will be thrown
-    // best to be set in your .env file
     'debug' => false,
 
     // Available filters
     //
     // An array of filters based on which Permy builds a list of permissions to manage
-    // The fillable array represents the the filters that are manageable through the UI
+    // The fillable array represents the filters that are manageable through the UI
     // The guarded array represents the filters that are not seen in the UI and are managed manually
     //
     // Default filters array:
@@ -40,6 +37,6 @@ return
     // 'guarded' => [],
     'filters' => [
         'fillable' => ['permy'],
-        'guarded' => [],
+        'guarded' => []
     ],
 ];

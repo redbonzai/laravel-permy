@@ -24,8 +24,8 @@ class PermyFilter
         // Check if user is authorized to access this route
         if (\Auth::check() && !\Permy::can($route)) {
             return \Request::ajax() || \Request::wantsJson()
-                ? \Response::json(['status' => 401, 'errors' => ['Unauthorized']], 401)
-                : '401 - Forbidden';
+                ? \Response::json(['status' => 403, 'errors' => ['Unauthorized']], 403)
+                : '403 - Forbidden';
         }
     }
 }

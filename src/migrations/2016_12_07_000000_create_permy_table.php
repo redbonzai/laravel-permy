@@ -24,8 +24,8 @@ class CreatePermyTable extends Migration
 
             // Example (NAMESPACED controller Acme\Admin\UsersController):
             // syntax: {acme::namespace::controller}
-            $table->text('acme::admin::users')->nullable();
-            $table->text('acme::site::users')->nullable();
+            $table->text('Acme::Admin::UsersController')->nullable();
+            $table->text('Acme::Site::UsersController')->nullable();
         });
     }
 
