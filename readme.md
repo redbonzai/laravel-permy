@@ -10,6 +10,11 @@ A powerful and flexible ACL for all your Laravel applications; supporting versio
 * Batch permission checking with extra logical operators
 * Artisan commands and Debugging helpers
 
+## TODO
+- [ ] Class refactoring and abstraction
+- [ ] Add *operator* key support for array permissions to artisan command
+- [ ] Additional helper artisan commands
+
 ## Contents
 >The only section without hilarious comments
 
@@ -110,7 +115,7 @@ Leave the boilerplate as is
 ```
 Create a column for every controller that needs access restriction.
 We're specifying controllers which will use the Permy middleware/filters.
-These should be fully namespaced class names in **lowercase** and `\ (backslashes)` replaced with `:: double colons` like so:
+These should be fully namespaced class names and `\ (backslashes)` replaced with `:: double colons` like so:
 
 Original Controller class name:
 ```php
