@@ -30,7 +30,7 @@ A powerful and flexible ACL for all your Laravel applications; supporting versio
 
 ---
 ## Installation
->The beginning of a beautiful friendship (with cheezy music in the background)
+>The beginning of a beautiful friendship (with cheesy music in the background)
 
 Require via composer
 ```shell```shell
@@ -98,7 +98,7 @@ You may create this file for each locale used by your app simply by substituting
 
 After you've successfully published the migration files, you should have 2 files:
 
-`create_permy_table` and `craete_permy_user_table`
+`create_permy_table` and `create_permy_user_table`
 
 The `permy` table is responsible for storing all of your future permissions
 while the `permy_user` table holds the relation of users to their respective permissions
@@ -115,7 +115,7 @@ Leave the boilerplate as is
 ```
 Create a column for every controller that needs access restriction.
 We're specifying controllers which will use the Permy middleware/filters.
-These should be fully namespaced class names and `\ (backslashes)` replaced with `:: double colons` like so:
+These should be fully name-spaced class names and `\ (backslashes)` replaced with `:: double colons` like so:
 
 Original Controller class name:
 ```php
@@ -223,7 +223,7 @@ Allows you to check if the current user *can* access one or multiple routes or c
 
 **Basic**
 ```php
-    // check single route or contoller method
+    // check single route or controller method
     Permy::can('users.index');
     Permy::can('UsersController@index');
 
@@ -462,12 +462,12 @@ When the `permy.php` file is created for the first time or updated with new data
 You can have translations of this file for each locale.
 ```php
     [
-        // :controller is replaced with the namespaced controller name
+        // :controller is replaced with the name-spaced controller name
         'controller' => [
             'name' => '* :controller - please update',
             'desc' => '* The developer was way to busy to care describing the :controller class',
         ],
-        // :controller is replaced with the namespaced controller name
+        // :controller is replaced with the name-spaced controller name
         // :method is replaced with the controller method name
         'method' => [
             'name' => '* :controller@:method - please update',
@@ -514,11 +514,11 @@ Error updating the `permy.php` language file
 
 **PermyMethodNotSetException**
 
-The method you're trying to check is not explicitly set in the DB. Defauls to false when debug is false
+The method you're trying to check is not explicitly set in the DB. Defaults to false when debug is false
 
 **PermyControllerNotSetException**
 
-The controller you're trying to check does not exist the DB as a column name. Defauls to false when debug is false
+The controller you're trying to check does not exist the DB as a column name. Defaults to false when debug is false
 
 **PermyPermissionsNotFoundException**
 
