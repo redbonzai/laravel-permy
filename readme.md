@@ -33,7 +33,7 @@ A powerful and flexible ACL for all your Laravel applications; supporting versio
 >The beginning of a beautiful friendship (with cheesy music in the background)
 
 Require via composer
-```shell```shell
+```shell
     composer require michaeltintiuc/laravel-permy
 ``````
 Append the Service Provider to your providers array in `app/config/app.php` (4.2) or `config/app.php` (5.0+)
@@ -108,7 +108,7 @@ Permy works in a way that each permission has a name, description and whole lot 
 Now onto configuring it.
 
 Leave the boilerplate as is
-```php
+```
     $table->increments('id');
     $table->string('name');
     $table->string('desc');
@@ -118,18 +118,18 @@ We're specifying controllers which will use the Permy middleware/filters.
 These should be fully name-spaced class names and `\ (backslashes)` replaced with `:: double colons` like so:
 
 Original Controller class name:
-```php
+```
     Acme\Controllers\UsersController
 ```
 Resulting php and column name:
-```php
+```
     $table->text('Acme::Controllers::UsersController')->nullable();
 ```
 The column type is `text` because we'll be storing JSON data that will represent access to specific Controller methods. We also set the column to be `nullable` because well... you might forget that you've created several new Controllers and/or methods for your awesome feature, this will allow a graceful fallback of either restricting or allowing access (we'll discuss this in-depth a bit later).
 
 Now that you're all set - update your database
-```shell
-    php artisan migrate
+```
+php artisan migrate
 ```
 ---
 ## Usage
@@ -139,14 +139,14 @@ Now that you're all set - update your database
 **Laravel 4.2**
 
 Add the filter to the end of your `app/filters.php` file
-```php
-    Route::filter('permy', 'MichaelT\Permy\PermyFilter');
+```
+Route::filter('permy', 'MichaelT\Permy\PermyFilter');
 ```
 **Laravel 5.0+**
 
 Add the middleware to the `$routeMiddleware` array in your `app/Http/Kernel.php` file
-```php
-    'permy' => 'MichaelT\Permy\PermyMiddleware'
+```
+'permy' => 'MichaelT\Permy\PermyMiddleware'
 ```
 This is a base filter/middleware and will simply spit our `403 - Forbidden` on restricted routes. If you'd like to display custom text, view or perhaps a redirect you can provide your own class.
 All you have to do is perform a check using `Permy::can($route)` in your implementation.
@@ -159,17 +159,17 @@ Have a look at the source code of the [filter](https://github.com/michaeltintiuc
 These **must be** *before* filters
 
 Applied directly to a route
-```php
-    Route::get('/', ['before' => 'permy', 'uses' => 'SomeController@method']);
+```
+Route::get('/', ['before' => 'permy', 'uses' => 'SomeController@method']);
 ```
 Or to a route group
-```php
+```
     Route::group([before' => 'permy'], function () {
         ...
     });
 ```
 Or within a controller
-```php
+```
     class SomeController
     {
         public function __construct()
@@ -183,17 +183,17 @@ Or within a controller
 **Laravel 5.0+**
 
 Applied directly to a route
-```php
+```
     Route::get('/', 'SomeController@method')->middleware('permy');
 ```
 Or to a route group
-```php
+```
     Route::group([middleware' => 'permy'], function () {
         ...
     });
 ```
 Or within a controller
-```php
+```
     class SomeController
     {
         public function __construct()
@@ -206,7 +206,7 @@ Or within a controller
 ```
 At this point you're done and can test the application.
 If you've assigned the filter/middleware to `Acme\SomeController` which has `index` and `someMethod` methods you can insert a new row in the `permy` table with a test JSON for the `Acme::SomeController` column:
-```json
+```
     {"index": 1, "someMethod": 0}
 ```
 Note the ID of the new row and insert a new one in the `permy_user` table binding the permission ID to an existing user.
@@ -216,13 +216,13 @@ If you try the above routes with a different user, all requests will be blocked,
 ---
 #### Methods
 **can**
-```php
+```
 boolean can(<array|string|Illuminate\Routing\Route $routes> [, [string $operator = 'and'] [, boolean|callable $extra_check = true]])
 ```
 Allows you to check if the current user *can* access one or multiple routes or controller methods. You can mix route names, controller class names/methods and Route objects when passing an array.
 
 **Basic**
-```php
+```
     // check single route or controller method
     Permy::can('users.index');
     Permy::can('UsersController@index');
