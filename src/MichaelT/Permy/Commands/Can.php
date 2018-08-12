@@ -10,6 +10,11 @@ class Can extends Command
     protected $name = 'permy:can';
     protected $description = 'Checks if a user is allowed access to route';
 
+    public function handle()
+    {
+        $this->fire();
+    }
+
     public function fire()
     {
         $model = $this->option('model');

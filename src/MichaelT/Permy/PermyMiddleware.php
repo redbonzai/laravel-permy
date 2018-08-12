@@ -13,8 +13,7 @@ class PermyMiddleware
 {
     public function handle($request, Closure $next)
     {
-        // Check if user is logged-in first
-        // Check if user is authorized to access this route
+        // Check if user is logged-in and is authorized to access this route
         if (\Auth::check() && !\Permy::can($request->route())) {
             return \Request::ajax() || \Request::wantsJson()
                 ? \Response::json(['status' => 403, 'errors' => ['Unauthorized']], 403)
