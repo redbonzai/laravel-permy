@@ -14,6 +14,9 @@ A powerful and flexible ACL for all your Laravel applications; supporting versio
 - [ ] Class refactoring and abstraction
 - [ ] Add *operator* key support for array permissions to artisan command
 - [ ] Additional helper artisan commands
+- [ ] Add PHP7 typing
+- [ ] Improve DB access, minimize amount of queries
+- [ ] Add Blade directives
 
 ## Contents
 >The only section without hilarious comments
