@@ -24,5 +24,15 @@
             "src/exceptions.php"
         ]
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "stable",
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MichaelT\\Permy\\PermyServiceProvider"
+            ],
+            "aliases": {
+                "Permy": "MichaelT\\Permy\\PermyFacade"
+            }
+        }
+    }
 }

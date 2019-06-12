@@ -14,6 +14,9 @@ A powerful and flexible ACL for all your Laravel applications; supporting versio
 - [ ] Class refactoring and abstraction
 - [ ] Add *operator* key support for array permissions to artisan command
 - [ ] Additional helper artisan commands
+- [ ] Add PHP7 typing
+- [ ] Improve DB access, minimize amount of queries
+- [ ] Add Blade directives
 
 ## Contents
 >The only section without hilarious comments
@@ -35,7 +38,10 @@ A powerful and flexible ACL for all your Laravel applications; supporting versio
 Require via composer
 ```shell
     composer require michaeltintiuc/laravel-permy
-``````
+```
+
+**For Laravel 5.5+ you do not need to manually add the Service Provider nor the Facade (alias) - these will be auto-discovered**
+
 Append the Service Provider to your providers array in `app/config/app.php` (4.2) or `config/app.php` (5.0+)
 ```php
     'MichaelT\Permy\PermyServiceProvider'
